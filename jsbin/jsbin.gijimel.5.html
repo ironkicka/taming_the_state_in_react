@@ -21,8 +21,34 @@ Released under the MIT license: http://jsbin.mit-license.org
 
     const TODO_ADD = 'TODO_ADD';
     const TODO_TOGGLE = 'TODO_TOGGLE';
+    const FILTER_SET = 'FILTER_SET';
 
-    function reducer(state, action) {
+    const rootReducer = Redux.combineReducers({
+        todoState: todoReducer,
+        filterState: filterReducer,
+    })
+
+    function filterReducer(state = 'SHOW_ALL',action){
+        switch(action.type){
+            case FILTER_SET:{
+                return applySetFilter(state,action)
+            }
+            default: return state;
+        }
+    }
+
+    function applySetFilter(state,action){
+        return action.filter;
+    }
+
+    function doSetFilter(filter){
+        return {
+            type: FILTER_SET,
+            filter,
+        }
+    }
+
+    function todoReducer(state = [], action) {
         switch (action.type) {
             case TODO_ADD: {
                 return applyAddTodo(state, action);
@@ -61,7 +87,7 @@ Released under the MIT license: http://jsbin.mit-license.org
         }
     };
 
-    const store = Redux.createStore(reducer, []);
+    const store = Redux.createStore(rootReducer);
     const unsubscribe = store.subscribe(() => {
         console.log(store.getState());
     });
@@ -69,6 +95,7 @@ Released under the MIT license: http://jsbin.mit-license.org
     store.dispatch(doAddTodo('0','learn redux!'));
     store.dispatch(doAddTodo('1','learn mobX'));
     store.dispatch(doToggleTodo('0'))
+    store.dispatch(doSetFilter('COMPLETED'))
     unsubscribe();
 
 </script>
