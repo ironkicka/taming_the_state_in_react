@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2021 by ironkicka (http://jsbin.com/gijimel/5/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.5.2/redux.min.js"></script>
+</head>
+<body>
+
+<script id="jsbin-javascript">
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "TODO_ADD": {
+      return applyAddTodo(state, action);
+    }
+    case "TODO_TOGGLE": {
+      return applyToggleTodo(state, action);
+    }
+    default:
+      return state;
+  }
+}
+
+function applyAddTodo(state, action) {
+  return state.concat(action.todo);
+}
+
+function applyToggleTodo(state, action) {
+  return state.map((todo) =>
+    todo.id === action.todo.id? Object.assign({}, todo, { completed: !todo.completed })
+      : todo
+  );
+}
+
+const store = Redux.createStore(reducer, []);
+const unsubscribe = store.subscribe(() => {
+  console.log(store.getState());
+});
+
+store.dispatch({
+  type: "TODO_ADD",
+  todo: { id: "0", name: "learn redux", completed: false }
+});
+
+unsubscribe();
+
+</script>
+</body>
+</html>
