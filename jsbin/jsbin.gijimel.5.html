@@ -10,50 +10,66 @@ Released under the MIT license: http://jsbin.mit-license.org
 <meta name="robots" content="noindex">
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>JS Bin</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.5.2/redux.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>JS Bin</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.5.2/redux.min.js"></script>
 </head>
 <body>
 
 <script id="jsbin-javascript">
 
-function reducer(state, action) {
-  switch (action.type) {
-    case "TODO_ADD": {
-      return applyAddTodo(state, action);
+    const TODO_ADD = 'TODO_ADD';
+    const TODO_TOGGLE = 'TODO_TOGGLE';
+
+    function reducer(state, action) {
+        switch (action.type) {
+            case TODO_ADD: {
+                return applyAddTodo(state, action);
+            }
+            case TODO_TOGGLE: {
+                return applyToggleTodo(state, action);
+            }
+            default:
+                return state;
+        }
     }
-    case "TODO_TOGGLE": {
-      return applyToggleTodo(state, action);
+
+    function applyAddTodo(state, action) {
+        const todo = Object.assign({}, action.todo, {completed: false})
+        return state.concat(todo);
     }
-    default:
-      return state;
-  }
-}
 
-function applyAddTodo(state, action) {
-  return state.concat(action.todo);
-}
+    function applyToggleTodo(state, action) {
+        return state.map((todo) =>
+            todo.id === action.todo.id ? Object.assign({}, todo, {completed: !todo.completed})
+                : todo
+        );
+    }
 
-function applyToggleTodo(state, action) {
-  return state.map((todo) =>
-    todo.id === action.todo.id? Object.assign({}, todo, { completed: !todo.completed })
-      : todo
-  );
-}
+    function doAddTodo(id,name){
+        return {
+            type: TODO_ADD,
+            todo:{id,name},
+        };
+    };
 
-const store = Redux.createStore(reducer, []);
-const unsubscribe = store.subscribe(() => {
-  console.log(store.getState());
-});
+    function doToggleTodo(id){
+        return{
+            type:TODO_TOGGLE,
+            todo:{id},
+        }
+    };
 
-store.dispatch({
-  type: "TODO_ADD",
-  todo: { id: "0", name: "learn redux", completed: false }
-});
+    const store = Redux.createStore(reducer, []);
+    const unsubscribe = store.subscribe(() => {
+        console.log(store.getState());
+    });
 
-unsubscribe();
+    store.dispatch(doAddTodo('0','learn redux!'));
+    store.dispatch(doAddTodo('1','learn mobX'));
+    store.dispatch(doToggleTodo('0'))
+    unsubscribe();
 
 </script>
 </body>
