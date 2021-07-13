@@ -6,7 +6,8 @@ import { createLogger } from 'redux-logger';
 import {Provider,connect} from 'react-redux';
 import {schema,normalize} from "normalizr";
 import {v4 as uuid}from 'uuid';
-import thunk from "redux-thunk";
+import createSagaMiddleware from 'redux-saga';
+import {takeEvery,put,delay} from 'redux-saga/effects';
 
 // schemas
 const todoSchema = new schema.Entity('todo');
@@ -15,7 +16,8 @@ const todoSchema = new schema.Entity('todo');
 const TODO_ADD = 'TODO_ADD';
 const TODO_TOGGLE = 'TODO_TOGGLE';
 const FILTER_SET = 'FILTER_SET';
-const NOTIFICATION_HIDE='NOTIFICATION_HIDE'
+const TODO_ADD_WITH_NOTIFICATION = 'TODO_ADD_WITH_NOTIFICATION';
+const NOTIFICATION_HIDE = 'NOTIFICATION_HIDE'
 
 //filters
 const VISIBILITY_FILTERS = {
@@ -115,13 +117,23 @@ function doHideNotification(id){
 }
 
 function doAddTodoWithNotification(id,name){
-    return function (dispatch){
-        dispatch(doAddTodo(id,name));
-
-        setTimeout(function (){
-            dispatch(doHideNotification(id));
-        },5000);
+    return {
+        type: TODO_ADD_WITH_NOTIFICATION,
+        todo:{id,name}
     }
+}
+
+// sagas  *付きはジェネレータ関数なるものらしい
+function* watchAddTodoWithNotification(){
+    yield takeEvery(TODO_ADD_WITH_NOTIFICATION,handleAddTodoWithNotification);
+}
+
+function* handleAddTodoWithNotification(action){
+    const {todo} = action;
+    const {id,name} = todo;
+    yield put(doAddTodo(id,name));
+    yield delay(5000);
+    yield put(doHideNotification(id));
 }
 
 function notificationReducer(state={},action){
@@ -157,12 +169,15 @@ const rootReducer = combineReducers({
 })
 
 const logger = createLogger();
+const saga = createSagaMiddleware();
 
 const store = createStore(
     rootReducer,
     undefined,//stateの初期値を設定しない時
-    applyMiddleware(logger,thunk)
+    applyMiddleware(logger,saga)
 );
+
+saga.run(watchAddTodoWithNotification);
 
 // React Components
 function TodoApp(){
