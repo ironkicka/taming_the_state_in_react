@@ -15,6 +15,13 @@ const TODO_ADD = 'TODO_ADD';
 const TODO_TOGGLE = 'TODO_TOGGLE';
 const FILTER_SET = 'FILTER_SET';
 
+//filters
+const VISIBILITY_FILTERS = {
+    SHOW_COMPLETED: item => item.completed,
+    SHOW_INCOMPLETED: item => !item.completed,
+    SHOW_ALL: item => true,
+}
+
 //reducers
 const todos = [
     {id:'1',name:'Redux Standalone with advanced Actions'},
@@ -116,6 +123,7 @@ const store = createStore(
 function TodoApp(){
     return (
         <div>
+            <ConnectedFilter />
             <ConnectedTodoCreate />
             <ConnectedTodoList />
         </div>
@@ -189,9 +197,38 @@ class TodoCreate extends React.Component {
     }
 }
 
+function Filter({onSetFilter}){
+    return(
+        <div>
+            Show
+            <button
+                type={"button"}
+                onClick={()=>onSetFilter('SHOW_ALL')}
+            >
+                All
+            </button>
+            <button
+                type={"button"}
+                onClick={()=>onSetFilter('SHOW_COMPLETED')}
+            >
+                Completed
+            </button>
+            <button
+                type={"button"}
+                onClick={()=>onSetFilter('SHOW_INCOMPLETED')}
+            >
+                Incompleted
+            </button>
+        </div>
+    )
+}
+
 // selectors
 function getTodosAsIds(state){
-    return state.todoState.ids;
+   return state.todoState.ids
+       .map(id => state.todoState.entities[id])
+       .filter(VISIBILITY_FILTERS[state.filterState])
+       .map(todo => todo.id);
 }
 
 function getToDo(state,todoId){
@@ -235,6 +272,14 @@ function mapDispatchToPropsCreate(dispatch){
 }
 
 const ConnectedTodoCreate = connect(null,mapDispatchToPropsCreate)(TodoCreate)
+
+function mapDispatchToPropsFilter(dispatch){
+    return{
+        onSetFilter:filterType => dispatch(doSetFilter(filterType)),
+    }
+}
+
+const ConnectedFilter = connect(null,mapDispatchToPropsFilter)(Filter)
 
 ReactDOM.render(
     <Provider store={store}>
