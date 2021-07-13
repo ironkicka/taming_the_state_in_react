@@ -2,8 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import { combineReducers,createStore,applyMiddleware} from "redux";
-import {createLogger} from 'redux-logger';
+import { createLogger } from 'redux-logger';
 import {Provider,connect} from 'react-redux';
+import {schema,normalize} from "normalizr";
+
+// schemas
+const todoSchema = new schema.Entity('todo');
 
 // action types
 const TODO_ADD = 'TODO_ADD';
@@ -12,11 +16,26 @@ const FILTER_SET = 'FILTER_SET';
 
 //reducers
 const todos = [
-    {id:'0',name:'learn redux'},
-    {id:'1',name:'learn mobx'},
+    {id:'1',name:'Redux Standalone with advanced Actions'},
+    {id:'2',name:'Redux Standalone with advanced Reducers'},
+    {id:'3',name:'Bootstrap App with Redux'},
+    {id:'4',name:'Naive Todo with React and Redux'},
+    {id:'5',name:'Sophisticated Todo with React and Redux'},
+    {id:'6',name:'Connecting State Everywhere'},
+    {id:'7',name:'Todo with advanced Redux'},
+    {id:'8',name:'Todo but more Features'},
+    {id:'9',name:'Todo with Notifications'},
+    {id:'10',name:'Hacker News with Redux'},
 ]
 
-function todoReducer(state = todos, action) {
+const normalizedTodos = normalize(todos,[todoSchema]);
+
+const initialTodoState = {
+    entities:normalizedTodos.entities.todo,
+    ids:normalizedTodos.result,
+};
+
+function todoReducer(state = initialTodoState, action) {
     switch (action.type) {
         case TODO_ADD: {
             return applyAddTodo(state, action);
@@ -31,15 +50,17 @@ function todoReducer(state = todos, action) {
 
 function applyAddTodo(state, action) {
     const todo = {...action.todo,completed: false};
-    return [...state,todo];
+    const entities = {...state.entities,[todo.id]:todo};
+    const ids = [...state.ids,action.todo.id]
+    return {...state,entities,ids};
 }
 
 function applyToggleTodo(state, action) {
-    return state.map((todo) =>
-        todo.id === action.todo.id
-            ? {...todo, completed: !todo.completed}
-            : todo
-    );
+    const id = action.todo.id;
+    const todo = state.entities[id];
+    const toggledTodo = {...todo,completed:!todo.completed};
+    const entities = {...state.entities,[id]:toggledTodo};
+    return {...state,entities}
 }
 
 function filterReducer(state = 'SHOW_ALL',action){
@@ -94,13 +115,13 @@ function TodoApp(){
     return <ConnectedTodoList />
 }
 
-function TodoList({todos}){
+function TodoList({todosAsIds}){
     return (
         <div>
-            {todos.map(todo =>
+            {todosAsIds.map(todoId =>
                 <ConnectedTodoItem
-                    key={todo.id}
-                    todo={todo}
+                    key={todoId}
+                    todoId={todoId}
                 />
             )}
         </div>
@@ -122,20 +143,44 @@ function TodoItem({todo,onToggleTodo}){
     );
 }
 
-function mapStateToProps(state){
+// selectors
+function getTodosAsIds(state){
+    return state.todoState.ids;
+}
+
+function getToDo(state,todoId){
+    return state.todoState.entities[todoId]
+}
+
+// Connecting React and Redux
+
+function mapStateToPropsList(state){
     return{
-        todos:state.todoState
+        todosAsIds:getTodosAsIds(state),
     };
 }
 
-function mapDispatchToProps(dispatch){
+function mapStateToPropsItem(state,props){
     return{
-        onToggleTodo:id => dispatch(doToggleTodo(id)),
+        todo:getToDo(state,props.todoId),
+    };
+}
+
+function mapDispatchToPropsItem(dispatch){
+    return{
+        onToggleTodo:id=>dispatch(doToggleTodo(id)),
     }
 }
 
-const ConnectedTodoList = connect(mapStateToProps,null)(TodoList);
-const ConnectedTodoItem = connect(null,mapDispatchToProps)(TodoItem)
+const ConnectedTodoList = connect(
+    mapStateToPropsList,//Idの配列だけ
+    null
+)(TodoList);
+
+const ConnectedTodoItem = connect(
+    mapStateToPropsItem,//名前とidの紐付け
+    mapDispatchToPropsItem
+)(TodoItem)
 
 ReactDOM.render(
     <Provider store={store}>
