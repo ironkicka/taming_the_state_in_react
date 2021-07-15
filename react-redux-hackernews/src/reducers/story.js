@@ -13,7 +13,7 @@ const INITIAL_STATE = [
         author:'Dan Abramov, Andrew Clark',
         num_comments:2,
         points:5,
-        objectID: 1,
+        objectID:1,
     }
 ]
 

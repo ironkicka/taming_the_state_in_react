@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import store from './store';
 import { getReadableStories} from "./selectors/story";
 import {STORY_ARCHIVE} from "./constants/actionTypes";
+import {doArchiveStory} from "./actions/archive";
 
 
 function render() {
@@ -13,7 +14,7 @@ function render() {
         <React.StrictMode>
             <App
                 stories={getReadableStories(store.getState())}
-                onArchive={id => store.dispatch({type: STORY_ARCHIVE, id})}
+                onArchive={id => store.dispatch(doArchiveStory(id))}
             />
         </React.StrictMode>,
         document.getElementById('root')

@@ -4,31 +4,31 @@ import './Stories.css';
 import Story from './Story';
 
 const COLUMNS = {
-    title:{
-        label:'Title',
-        width:'40%',
+    title: {
+        label: 'Title',
+        width: '40%',
     },
-    author:{
-        label:'Author',
-        width:'30%',
+    author: {
+        label: 'Author',
+        width: '30%',
     },
-    comments:{
-        label:'Comments',
-        width:'10%',
+    comments: {
+        label: 'Comments',
+        width: '10%',
     },
-    points:{
-        label:'Points',
-        width:'10%',
+    points: {
+        label: 'Points',
+        width: '10%',
     },
-    archive:{
-        width:'10%'
+    archive: {
+        width: '10%'
     },
 };
 
-const Stories = ({stories,onArchive})=>
+const Stories = ({stories, onArchive}) =>
     <div className="stories">
         <StoriesHeader columns={COLUMNS}/>
-        {(stories || []).map(story=>
+        {(stories || []).map(story =>
             <Story
                 key={story.objectID}
                 story={story}
@@ -38,15 +38,15 @@ const Stories = ({stories,onArchive})=>
         )}
     </div>
 
-const StoriesHeader = ({columns}) =>[
-    <div className="stories-header">
-        {Object.keys(COLUMNS).map(key =>
+const StoriesHeader = ({columns}) => [
+    <div className="stories-header" key={"stories-header"}>
+        {Object.keys(columns).map(key =>
             <span
                 key={key}
-                style={{width:COLUMNS[key].width}}
+                style={{width: columns[key].width}}
             >
-                    {COLUMNS[key].label}
-                </span>
+                    {columns[key].label}
+            </span>
         )}
     </div>
 ]
