@@ -1,5 +1,5 @@
 import React,{Component} from "react";
-import Button from '/Button';
+import {Button} from './Button';
 import {connect} from "react-redux";
 import {doFetchStories} from "../actions/story";
 
@@ -32,13 +32,15 @@ class SearchStories extends Component {
 
     render(){
         return(
-            <form onSubmit={this.onSubmitj}>
+            <form onSubmit={this.onSubmit}>
                 <input
                     type="text"
                     value={this.state.query}
                     onChange={this.onChange}
                 />
-                <Button>
+                <Button
+                    type={"submit"}
+                >
                     Search
                 </Button>
             </form>

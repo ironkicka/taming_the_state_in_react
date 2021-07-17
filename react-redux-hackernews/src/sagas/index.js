@@ -4,7 +4,7 @@ import {handleFetchStories} from './story';
 
 function *watchAll(){
     yield all([
-        takeEvery()
+        takeEvery(STORIES_FETCH,handleFetchStories)
     ])
 }
 
