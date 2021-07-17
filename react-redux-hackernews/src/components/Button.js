@@ -11,7 +11,7 @@ export const ButtonInline =({
         {children}
     </Button>
 
-const Button = ({
+export const Button = ({
                     onClick,
                     className,
                     type = 'button',
