@@ -2,7 +2,7 @@ import React from 'react';
 import './Stories.css';
 
 import Story from './Story';
-import {getReadableStories} from "../selectors/story";
+import {getFetchError, getReadableStories} from "../selectors/story";
 import {doArchiveStory} from "../actions/archive";
 import {connect} from "react-redux";
 
@@ -28,9 +28,10 @@ const COLUMNS = {
     },
 };
 
-const Stories = ({stories}) =>
+const Stories = ({stories,error}) =>
     <div className="stories">
         <StoriesHeader columns={COLUMNS}/>
+        {error && <p className={"error"}>Something went wrong ...</p>}
         {(stories || []).map(story =>
             <Story
                 key={story.objectID}
@@ -54,7 +55,8 @@ const StoriesHeader = ({columns}) => [
 ]
 
 const mapStateToProps = state =>({
-    stories:getReadableStories(state)
+    stories:getReadableStories(state),
+    error:getFetchError(state)
 });
 
 export default connect(
